@@ -4,7 +4,7 @@
     @include crisp-rendering();
   
     display: inline-block;
-    background-image: url('https://nikocdn.azureedge.net/blogblob/pokesprite-v3.png');
+    background-image: url('https://nikocdn.azureedge.net/blogblob/pokesprite.png');
     background-repeat: no-repeat;
   }
 
