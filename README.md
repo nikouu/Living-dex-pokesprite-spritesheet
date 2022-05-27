@@ -6,7 +6,7 @@ However I didn't like the direction PokedexTracker went with Pokemon Legends Arc
 | Pixel-based                                    | 3D-based                                    |
 | ---------------------------------------------- | ------------------------------------------- |
 | ![image](docs/pokdextracker-pixel-sprites.png) | ![image](docs/pokdextracker-3d-sprites.png) |
-|                                                |                                             |
+                                                
 
 This work is be heavily influenced by the work from PokdexTracker. 
 
