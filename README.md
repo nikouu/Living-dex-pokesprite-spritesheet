@@ -21,6 +21,6 @@ This work is be heavily influenced by the work from PokdexTracker.
 
 ## Setup
 
-### dotnet
+### Installing dotnet
 
 ## Usage
