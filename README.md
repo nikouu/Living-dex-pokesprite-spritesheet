@@ -19,8 +19,13 @@ This work is be heavily influenced by the work from PokdexTracker.
 1. Generate `.scss` and subsequently `.css` files
 1. Copy to output location
 
+### `System.Threading.Channels`
+This project is also an experiment to learn about the newish `System.Threading.Channels` and how to create parallel and linked up pipelines using it. 
+
 ## Setup
 
 ### Installing dotnet
 
 ## Usage
+
+

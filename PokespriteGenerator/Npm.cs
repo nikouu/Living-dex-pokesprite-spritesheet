@@ -1,52 +1,63 @@
-﻿using System;
+﻿using PokespriteGenerator.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace PokespriteGenerator
 {
-    internal class Npm
+    public class Npm
     {
         private readonly Uri NpmUrl = new("https://registry.npmjs.com/");
 
-        private void GetTarball(string packageName, string packageVersion)
+        public async Task GetTarball(string packageName, string? packageVersion = null)
         {
+            var queryVersion = packageVersion ?? await GetLatestPackageVersion(packageName);
 
+            var packageMetadata = await GetPackageData(packageName, queryVersion);
         }
-    }
+
+        private async Task<string> GetLatestPackageVersion(string packageName)
+        {
+            var client = new HttpClient();
+            var url = BuildNpmUrl(packageName, null);
+            var s = client.GetStringAsync(url);
+            var result = await s;
+            var g = JsonSerializer.Deserialize<NpmPackageQueryModel>(result);
+
+            return g.DistTags.Latest;
+        }
+
+        private async Task<NpmPackageModel> GetPackageData(string packageName, string packageVersion)
+        {
+            // https://dotnetfiddle.net/LOwriN        
+
+            var client = new HttpClient();
 
 
-    internal class PackageMetadata
-    {
-        public DistributionTags disttags { get; set; }
-    }
+            var url = BuildNpmUrl(packageName, packageVersion);
 
-    internal class DistributionTags
-    {
-        public string latest { get; set; }
-    }
+            var s = client.GetStringAsync(url);
 
-    public class PackageVersionMetadata
-    {
-        public Distribution dist { get; set; }
+            var result = await s;
 
-    }
+            var g = JsonSerializer.Deserialize<NpmPackageModel>(result);
 
-    public class Distribution
-    {
-        public string integrity { get; set; }
-        public string shasum { get; set; }
-        public string tarball { get; set; }
-        public int fileCount { get; set; }
-        public int unpackedSize { get; set; }
-        public string npmsignature { get; set; }
-        public Signature[] signatures { get; set; }
-    }
+            return g;
+        }
 
-    public class Signature
-    {
-        public string keyid { get; set; }
-        public string sig { get; set; }
+        private Uri BuildNpmUrl(string packageName, string packageVersion)
+        {
+            var uriBuilder = new UriBuilder
+            {
+                Scheme = "https",
+                Host = "registry.npmjs.com",
+                Path = $"{packageName}/{packageVersion}"
+            };
+
+            return uriBuilder.Uri;
+        }
     }
 }
