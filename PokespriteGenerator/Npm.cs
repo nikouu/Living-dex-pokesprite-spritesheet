@@ -10,45 +10,39 @@ namespace PokespriteGenerator
 {
     public class Npm
     {
-        private readonly Uri NpmUrl = new("https://registry.npmjs.com/");
-
         public async Task GetTarball(string packageName, string? packageVersion = null)
         {
             var queryVersion = packageVersion ?? await GetLatestPackageVersion(packageName);
 
-            var packageMetadata = await GetPackageData(packageName, queryVersion);
+            var packageMetadata = await GetPackageMetadata(packageName, queryVersion);
         }
 
         private async Task<string> GetLatestPackageVersion(string packageName)
-        {
-            var client = new HttpClient();
-            var url = BuildNpmUrl(packageName, null);
-            var s = client.GetStringAsync(url);
-            var result = await s;
+        {          
+            var url = BuildNpmPackageUrl(packageName, null);
+            var result = await GetNpmJson(url);
             var g = JsonSerializer.Deserialize<NpmPackageQueryModel>(result);
 
             return g.DistTags.Latest;
         }
 
-        private async Task<NpmPackageModel> GetPackageData(string packageName, string packageVersion)
+        private async Task<NpmPackageModel> GetPackageMetadata(string packageName, string packageVersion)
         {
-            // https://dotnetfiddle.net/LOwriN        
-
-            var client = new HttpClient();
-
-
-            var url = BuildNpmUrl(packageName, packageVersion);
-
-            var s = client.GetStringAsync(url);
-
-            var result = await s;
-
+            var url = BuildNpmPackageUrl(packageName, packageVersion);
+            var result = await GetNpmJson(url);
             var g = JsonSerializer.Deserialize<NpmPackageModel>(result);
 
             return g;
         }
 
-        private Uri BuildNpmUrl(string packageName, string packageVersion)
+        private async Task<string> GetNpmJson(Uri url)
+        {
+            var client = new HttpClient();
+            var jsonString = await client.GetStringAsync(url);
+            return jsonString;
+        }
+
+        private Uri BuildNpmPackageUrl(string packageName, string packageVersion)
         {
             var uriBuilder = new UriBuilder
             {
