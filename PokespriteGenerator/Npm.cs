@@ -1,48 +1,44 @@
 ﻿using PokespriteGenerator.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace PokespriteGenerator
 {
     public class Npm
     {
+        // pass streams or byte[] back/around?
         public async Task GetTarball(string packageName, string? packageVersion = null)
         {
-            var queryVersion = packageVersion ?? await GetLatestPackageVersion(packageName);
+            var version = packageVersion ?? await GetLatestVersionAsync();
 
-            var packageMetadata = await GetPackageMetadata(packageName, queryVersion);
+            var packageMetadata = await GetPackageMetadataAsync<NpmPackageModel>(packageName, version);
+
+            
+
+            // messing with local functions
+            async Task<string> GetLatestVersionAsync()
+            {
+                var latestVersion = await GetPackageMetadataAsync<NpmPackageQueryModel>(packageName, null);
+                return latestVersion.DistTags.Latest;
+            }
         }
 
-        private async Task<string> GetLatestPackageVersion(string packageName)
-        {          
-            var url = BuildNpmPackageUrl(packageName, null);
-            var result = await GetNpmJson(url);
-            var g = JsonSerializer.Deserialize<NpmPackageQueryModel>(result);
-
-            return g.DistTags.Latest;
-        }
-
-        private async Task<NpmPackageModel> GetPackageMetadata(string packageName, string packageVersion)
+        private async Task<T> GetPackageMetadataAsync<T>(string packageName, string packageVersion)
         {
             var url = BuildNpmPackageUrl(packageName, packageVersion);
-            var result = await GetNpmJson(url);
-            var g = JsonSerializer.Deserialize<NpmPackageModel>(result);
+            var json = await GetNpmJsonAsync(url);
+            var packageMetadata = JsonSerializer.Deserialize<T>(json);
 
-            return g;
+            return packageMetadata;
         }
 
-        private async Task<string> GetNpmJson(Uri url)
+        private async Task<string> GetNpmJsonAsync(Uri url)
         {
             var client = new HttpClient();
-            var jsonString = await client.GetStringAsync(url);
-            return jsonString;
+            var json = await client.GetStringAsync(url);
+            return json;
         }
 
-        private Uri BuildNpmPackageUrl(string packageName, string packageVersion)
+        private Uri BuildNpmPackageUrl(string packageName, string? packageVersion)
         {
             var uriBuilder = new UriBuilder
             {
