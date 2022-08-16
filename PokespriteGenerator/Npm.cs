@@ -6,13 +6,22 @@ namespace PokespriteGenerator
     public class Npm
     {
         // pass streams or byte[] back/around?
-        public async Task GetTarball(string packageName, string? packageVersion = null)
+        public async Task<MemoryStream> GetTarball(string packageName, string? packageVersion = null)
         {
             var version = packageVersion ?? await GetLatestVersionAsync();
 
             var packageMetadata = await GetPackageMetadataAsync<NpmPackageModel>(packageName, version);
 
-            
+            var httpClient = new HttpClient();
+
+            // returns non seekable stream, is this fine for my purposes?
+            // if not, can just copy to a memorystream
+            // https://stackoverflow.com/a/3373614
+            using var stream = await httpClient.GetStreamAsync(packageMetadata.Dist.Tarball);
+            var memoryStream = new MemoryStream();
+            stream.CopyTo(memoryStream);
+
+            return memoryStream;
 
             // messing with local functions
             async Task<string> GetLatestVersionAsync()

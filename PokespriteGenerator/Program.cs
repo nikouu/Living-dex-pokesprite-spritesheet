@@ -1,7 +1,8 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using PokespriteGenerator;
+using System.Formats.Tar;
+using System.IO.Compression;
 
-Console.WriteLine("Hello, World!");
 
 // remember System.Formats.Tar is a thing now https://github.com/dotnet/runtime/issues/65951
 // https://www.npmjs.com/package/pokesprite-images/v/2.6.0
@@ -9,8 +10,27 @@ Console.WriteLine("Hello, World!");
 
 var g = new Npm();
 
-await g.GetTarball("pokesprite-images", "2.6.0");
+var tgzStream = await g.GetTarball("pokesprite-images", "2.6.0");
+tgzStream.Seek(0, SeekOrigin.Begin);
 
+using var gzip = new GZipStream(tgzStream, CompressionMode.Decompress);
+
+using var unzippedStream = new MemoryStream();
+await gzip.CopyToAsync(unzippedStream);
+unzippedStream.Seek(0, SeekOrigin.Begin);
+
+using var reader = new TarReader(unzippedStream);
+
+while (reader.GetNextEntry() is TarEntry entry)
+{
+	Console.WriteLine($"Entry name: {entry.Name}, entry type: {entry.EntryType}");
+	//entry.ExtractToFile(destinationFileName: Path.Join("D:/MyExtractionFolder/", entry.Name), overwrite: false);
+}
+
+
+
+
+Console.WriteLine("Hello, World!");
 
 /*
  * 
