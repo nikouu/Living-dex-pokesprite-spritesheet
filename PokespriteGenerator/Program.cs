@@ -10,7 +10,7 @@ using System.IO.Compression;
 
 var g = new Npm();
 
-var tgzStream = await g.GetTarball("pokesprite-images", "2.6.0");
+var tgzStream = await g.GetTarball("pokesprite-images");
 tgzStream.Seek(0, SeekOrigin.Begin);
 
 using var gzip = new GZipStream(tgzStream, CompressionMode.Decompress);
