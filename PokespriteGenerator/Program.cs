@@ -1,36 +1,45 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using PokespriteGenerator;
-using System.Formats.Tar;
-using System.IO.Compression;
-
 
 // remember System.Formats.Tar is a thing now https://github.com/dotnet/runtime/issues/65951
 // https://www.npmjs.com/package/pokesprite-images/v/2.6.0
 // https://registry.npmjs.org/pokesprite-images/2.6.0
 
-var g = new Npm();
+var npm = new Npm();
 
-var tgzStream = await g.GetTarball("pokesprite-images");
+var tgzStream = await npm.GetTarball("pokesprite-images");
 tgzStream.Seek(0, SeekOrigin.Begin);
 
-using var gzip = new GZipStream(tgzStream, CompressionMode.Decompress);
 
-using var unzippedStream = new MemoryStream();
-await gzip.CopyToAsync(unzippedStream);
-unzippedStream.Seek(0, SeekOrigin.Begin);
 
-using var reader = new TarReader(unzippedStream);
-
-while (reader.GetNextEntry() is TarEntry entry)
+Func<string, bool> filter = (entry) =>
 {
-	Console.WriteLine($"Entry name: {entry.Name}, entry type: {entry.EntryType}");
-	//entry.ExtractToFile(destinationFileName: Path.Join("D:/MyExtractionFolder/", entry.Name), overwrite: false);
-}
+    if (entry.StartsWith(@"package/pokemon-gen8/regular"))
+    {
+        return true;
+    }
+    else if (entry.StartsWith(@"package/data/pokemon.json"))
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+};
+
+var decompressor = new Decompressor();
+
+var files = await decompressor.DecompressTgzAsync(tgzStream, filter);
 
 
 
 
 Console.WriteLine("Hello, World!");
+
+
+
+
 
 /*
  * 

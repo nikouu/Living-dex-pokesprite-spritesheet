@@ -1,12 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Formats.Tar;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace PokespriteGenerator
 {
-    internal class Decompressor
+    public class Decompressor
     {
+        public async Task<Dictionary<string, byte[]>> DecompressTgzAsync(MemoryStream tgzStream, Func<string, bool> filter)
+        {
+            using var gzip = new GZipStream(tgzStream, CompressionMode.Decompress);
+
+            using var unzippedStream = new MemoryStream();
+            await gzip.CopyToAsync(unzippedStream);
+            unzippedStream.Seek(0, SeekOrigin.Begin);
+
+            using var reader = new TarReader(unzippedStream);
+
+            var files = new Dictionary<string, byte[]>();
+
+            while (reader.GetNextEntry() is TarEntry entry)
+            {
+                if (filter(entry.Name))
+                {
+                    Console.WriteLine($"Entry name: {entry.Name}, entry type: {entry.EntryType}");
+                    using var memoryFile = new MemoryStream();
+                    await entry.DataStream.CopyToAsync(memoryFile);
+                    files.Add(entry.Name, memoryFile.ToArray());
+                }
+                //entry.ExtractToFile(destinationFileName: Path.Join("D:/MyExtractionFolder/", entry.Name), overwrite: false);
+            }
+
+            return files;
+        }
     }
 }
