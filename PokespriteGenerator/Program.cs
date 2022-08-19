@@ -54,6 +54,10 @@ await Task.WhenAll(generatePokemonData, scaledPokemonData, trimmedPokemonData, g
 // we can safely use .Result after a whenall because its done by then
 var (pokemonData, spritesheet) = generateSpritesheet.Result;
 
+var scssGenerator = new ScssGenerator();
+
+var scssString = scssGenerator.GenerateScss(pokemonData);
+
 // then for scss
 
 Console.WriteLine("Hello, World!");

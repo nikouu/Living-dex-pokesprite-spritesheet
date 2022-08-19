@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PokespriteGenerator.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -19,5 +20,30 @@ namespace PokespriteGenerator
             	background-repeat: no-repeat;
             }
             """;
+
+        
+
+        public string GenerateScss(List<PokemonData> pokemonDataList)
+        {
+            var scssClassList = new List<string> { RootClass };
+
+            var maxWidth = pokemonDataList.Max(x => x.TrimmedWidth).GetValueOrDefault();
+            var maxHeight = pokemonDataList.Max(x => x.TrimmedHeight).GetValueOrDefault();
+
+            foreach (var item in pokemonDataList)
+            {
+                var number = int.Parse(item.Number);
+                var column = (number - 1) % Columns;
+                var row = number / Columns;
+
+                var cssClass = $$""".pkicon.pkicon-{{item.Number}} { width: {{item.TrimmedWidth}}px; height: {{item.TrimmedHeight}}px; background-position: -{{column * maxWidth}}px -{{row * maxHeight}}px }""";
+                scssClassList.Add(cssClass);
+            }
+
+            var allClasses = string.Join(Environment.NewLine, scssClassList);
+
+            return allClasses;
+
+        }
     }
 }
