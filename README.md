@@ -19,8 +19,25 @@ This work is be heavily influenced by the work from PokdexTracker.
 1. Generate `.scss` and subsequently `.css` files
 1. Copy to output location
 
+## Trying out newer .NET features
+Decided to force in a few newer features to learn too. 
+
 ### `System.Threading.Channels`
 This project is also an experiment to learn about the newish `System.Threading.Channels` and how to create parallel and linked up pipelines using it. 
+
+
+### `System.Formats.Tar`
+
+### Working out specific use cases for `using` declarations
+
+### Local functions
+
+### Raw string literals
+
+### `<LangVersion>preview</LangVersion>`
+
+
+
 
 ## Setup
 

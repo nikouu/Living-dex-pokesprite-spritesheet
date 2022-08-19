@@ -10,7 +10,7 @@ namespace PokespriteGenerator
 {
     public class Decompressor
     {
-        public async Task<Dictionary<string, byte[]>> DecompressTgzAsync(MemoryStream tgzStream, Func<string, bool> filter)
+        public async Task<Dictionary<string, byte[]>> DecompressTgzAsync(MemoryStream tgzStream)
         {
             using var gzip = new GZipStream(tgzStream, CompressionMode.Decompress);
 
@@ -24,14 +24,10 @@ namespace PokespriteGenerator
 
             while (reader.GetNextEntry() is TarEntry entry)
             {
-                if (filter(entry.Name))
-                {
-                    Console.WriteLine($"Entry name: {entry.Name}, entry type: {entry.EntryType}");
-                    using var memoryFile = new MemoryStream();
-                    await entry.DataStream.CopyToAsync(memoryFile);
-                    files.Add(entry.Name, memoryFile.ToArray());
-                }
-                //entry.ExtractToFile(destinationFileName: Path.Join("D:/MyExtractionFolder/", entry.Name), overwrite: false);
+                //Console.WriteLine($"Entry name: {entry.Name}, entry type: {entry.EntryType}");
+                using var memoryFile = new MemoryStream();
+                await entry.DataStream.CopyToAsync(memoryFile);
+                files.Add(entry.Name, memoryFile.ToArray());
             }
 
             return files;
