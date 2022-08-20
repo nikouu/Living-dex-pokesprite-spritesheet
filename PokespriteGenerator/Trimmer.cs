@@ -42,10 +42,11 @@ namespace PokespriteGenerator
                 using var memoryStream = new MemoryStream();
                 trimmedImage.Save(memoryStream, ImageFormat.Png);
 
-                var newPokemonData = new PokemonData(item.Name, item.Number, memoryStream.ToArray(), trimmedImage.Width, trimmedImage.Height);
+                var newPokemonData = new PokemonData(item.Name, item.Number, item.Form, memoryStream.ToArray(), trimmedImage.Width, trimmedImage.Height);
                 await _channelWriter.WriteAsync(newPokemonData);
             }
 
+            Console.WriteLine("Completed trimming Pokemon data.");
             _channelWriter.Complete();
         }
 

@@ -58,6 +58,16 @@ var scssGenerator = new ScssGenerator();
 
 var scssString = scssGenerator.GenerateScss(pokemonData);
 
+
+
+
+
+var crudeSaveLocation = new DirectoryInfo(System.Reflection.Assembly.GetExecutingAssembly().Location + @"\..\..\..\..\..\output");
+
+
+File.WriteAllBytes(Path.Combine(crudeSaveLocation.FullName, "pokesprite.png"), spritesheet);
+File.WriteAllText(Path.Combine(crudeSaveLocation.FullName, "pokesprite.css"), scssString);
+
 // then for scss
 
 Console.WriteLine("Hello, World!");

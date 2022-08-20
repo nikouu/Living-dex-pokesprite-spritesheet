@@ -16,12 +16,10 @@ namespace PokespriteGenerator
             .pkicon {
             	@include crisp-rendering();
             	display: inline-block;
-            	background-image: url("/assets/other/post/living-dex/pokesprite.png");
+            	background-image: url("pokesprite.png");
             	background-repeat: no-repeat;
             }
             """;
-
-        
 
         public string GenerateScss(List<PokemonData> pokemonDataList)
         {
@@ -32,11 +30,11 @@ namespace PokespriteGenerator
 
             foreach (var item in pokemonDataList)
             {
-                var number = int.Parse(item.Number);
-                var column = (number - 1) % Columns;
+                var number = pokemonDataList.IndexOf(item);
+                var column = (number) % Columns;
                 var row = number / Columns;
 
-                var cssClass = $$""".pkicon.pkicon-{{item.Number}} { width: {{item.TrimmedWidth}}px; height: {{item.TrimmedHeight}}px; background-position: -{{column * maxWidth}}px -{{row * maxHeight}}px }""";
+                var cssClass = $$""".pkicon.pkicon-{{item.Number}}{{FormData(item.Form)}} { width: {{item.TrimmedWidth}}px; height: {{item.TrimmedHeight}}px; background-position: -{{column * maxWidth}}px -{{row * maxHeight}}px }""";
                 scssClassList.Add(cssClass);
             }
 
@@ -44,6 +42,16 @@ namespace PokespriteGenerator
 
             return allClasses;
 
+        }
+
+        private string FormData(string form)
+        {
+            if (form == "")
+            {
+                return "";
+            }
+
+            return $".form-{form}";
         }
     }
 }

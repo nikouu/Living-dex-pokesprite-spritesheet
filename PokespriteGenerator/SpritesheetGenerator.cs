@@ -38,8 +38,8 @@ namespace PokespriteGenerator
 
             foreach (var item in pokemonDataList)
             {
-                var number = int.Parse(item.Number);
-                var column = (number -1) % Columns;
+                var number = pokemonDataList.IndexOf(item);
+                var column = (number) % Columns;
                 var row = number / Columns;
 
                 using var imageStream = new MemoryStream(item.Image);
@@ -55,6 +55,7 @@ namespace PokespriteGenerator
             using var memoryStream = new MemoryStream();
             spritesheet.Save(memoryStream, ImageFormat.Png);
 
+            Console.WriteLine("Completed generating Pokemon spritesheet.");
             return (pokemonDataList, memoryStream.ToArray());
         }
     }

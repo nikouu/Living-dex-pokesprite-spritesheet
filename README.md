@@ -33,6 +33,7 @@ This project is also an experiment to learn about the newish `System.Threading.C
 ### Local functions
 
 ### Raw string literals
+incl interpolated
 
 ### `<LangVersion>preview</LangVersion>`
 

@@ -46,7 +46,7 @@ namespace PokespriteGenerator
 
                     using var memoryStream = new MemoryStream();
                     resizedImage.Save(memoryStream, ImageFormat.Png);
-                    var newPokemonData = new PokemonData(item.Name, item.Number, memoryStream.ToArray());
+                    var newPokemonData = new PokemonData(item.Name, item.Number, item.Form, memoryStream.ToArray());
 
                     await _channelWriter.WriteAsync(newPokemonData);
                 }
@@ -56,6 +56,7 @@ namespace PokespriteGenerator
                 }
             }
 
+            Console.WriteLine("Completed scaling Pokemon data.");
             _channelWriter.Complete();
         }
     }
