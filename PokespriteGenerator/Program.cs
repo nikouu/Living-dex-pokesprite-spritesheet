@@ -33,7 +33,6 @@ var decompressor = new Decompressor();
 
 var files = await decompressor.DecompressTgzAsync(tgzStream);
 
-
 var initialDataChannel = Channel.CreateUnbounded<PokemonData>();
 var scaledDataChannel = Channel.CreateUnbounded<PokemonData>();
 var trimmedDataChannel = Channel.CreateUnbounded<PokemonData>();
@@ -42,7 +41,6 @@ var generator = new PokemonDataGenerator(files, initialDataChannel.Writer);
 var scaler = new Scaler(initialDataChannel.Reader, scaledDataChannel.Writer);
 var trimmer = new Trimmer(scaledDataChannel.Reader, trimmedDataChannel.Writer);
 var spritesheetGenerator = new SpritesheetGenerator(trimmedDataChannel.Reader);
-
 
 var generatePokemonData = generator.Generate();
 var scaledPokemonData = scaler.Scale();
@@ -58,16 +56,8 @@ var scssGenerator = new ScssGenerator();
 
 var scssString = scssGenerator.GenerateScss(pokemonData);
 
-
-
-
-
 var crudeSaveLocation = new DirectoryInfo(System.Reflection.Assembly.GetExecutingAssembly().Location + @"\..\..\..\..\..\output");
-
-
 File.WriteAllBytes(Path.Combine(crudeSaveLocation.FullName, "pokesprite.png"), spritesheet);
 File.WriteAllText(Path.Combine(crudeSaveLocation.FullName, "pokesprite.css"), scssString);
-
-// then for scss
 
 Console.WriteLine("Hello, World!");

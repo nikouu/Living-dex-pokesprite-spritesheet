@@ -42,6 +42,7 @@ namespace PokespriteGenerator
 
                     foreach (var form in value.Forms)
                     {
+                        Console.WriteLine($"Processing {value.Name}-{form}");
                         var formFilename = $"package/pokemon-{value.LatestGeneration.Replace("-", "")}/regular/{value.Slug}-{form}.png";
 
                         if (!_rawData.ContainsKey(formFilename))
