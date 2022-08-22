@@ -23,20 +23,72 @@ This work is be heavily influenced by the work from PokdexTracker.
 Decided to force in a few newer features to learn too. 
 
 ### `System.Threading.Channels`
-This project is also an experiment to learn about the newish `System.Threading.Channels` and how to create parallel and linked up pipelines using it. 
+This project is also an experiment to learn about the newish `System.Threading.Channels` and how to create parallel and linked up pipelines using it. Originally I had a place in another repo of mine for learning these: [System.Threading.Channels Learnings](https://github.com/nikouu/System.Threading.Channels-Learnings).
 
+Channels are used here to process each Pokemon through the pipeline asynchronously.
 
 ### `System.Formats.Tar`
+Having a few RaspberryPi projects using .NET, I became excited to see the [feature request to add `System.Formats.Tar`](https://github.com/dotnet/runtime/issues/65951). The Pokesprite NPM package that gets downloaded in a `.tar` format and needs to be extracted. Feel free to check out more information in my post [How to Natively Read .tgz Files With the New C# TarReader Class](https://www.nikouusitalo.com/how-to-natively-read-tgz-files-with-the-new-c-tarreader-class/).
 
 ### Working out specific use cases for `using` declarations
+In .NET it often feels like `IDisposable` types are heavily paired with _[`using` statements](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/using-statement)_. Then as of C# 8 (.NET Core 3.x+) we got a new feature: _`using` declarations_. With these you don't explicitly set the scope and these `IDisposable` objects are disposed when the outer scope is completed. 
+
+For example:
+
+```csharp
+// using statements
+using (var gzip = new GZipStream(tgzStream, CompressionMode.Decompress))
+{
+	using (var unzippedStream = new MemoryStream())
+	{
+		await gzip.CopyToAsync(unzippedStream);
+		unzippedStream.Seek(0, SeekOrigin.Begin);
+
+		using (var reader = new TarReader(unzippedStream))
+		{
+
+		}
+	}
+}
+```
+
+```csharp
+// using declarations
+using var gzip = new GZipStream(tgzStream, CompressionMode.Decompress);
+
+using var unzippedStream = new MemoryStream();
+await gzip.CopyToAsync(unzippedStream);
+unzippedStream.Seek(0, SeekOrigin.Begin);
+
+using var reader = new TarReader(unzippedStream);
+```
 
 ### Local functions
+Introduced in C# 7 (Framework and Core 2.x+) were [local functions](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/local-functions). I don't think the project has a good use case for it, but I wedged it into `Npm.cs` to get what the most recent version of the NPM package is. 
 
 ### Raw string literals
-incl interpolated
+At the time of writing this, [Raw String Literals](https://devblogs.microsoft.com/dotnet/csharp-11-preview-updates/) is a C# 11 preview feature. They're strings that let you put all sorts of characters in it like quotes or backslashes without escaping them - because you cannot escape anything inside a raw string literal. 
 
-### `<LangVersion>preview</LangVersion>`
+The syntax using triple double quotes on each side of the string: `"""..."""`. For this project it gets used as part of the css generation just to make the presentation nicer for the base css class:
+```
+private string RootClass = """
+    .pkicon {
+        @include crisp-rendering();
+        display: inline-block;
+        background-image: url("pokesprite.png");
+        background-repeat: no-repeat;
+    }
+    """;
+```
 
+Then used the interpolated version of raw string literals to create each Pokemon (and form) class. Again, I didn't technically need to use them, but it made it much easier to deal with curly brackets required for css:
+```
+var cssClass = $$""".pkicon.pkicon-{{item.Number}}{{FormData(item.Form)}} { width: {{item.TrimmedWidth}}px; height: {{item.TrimmedHeight}}px; background-position: -{{column * maxWidth}}px -{{row * maxHeight}}px }""";
+
+```
+
+### Preview language features
+In order to use the raw string literals, I had to edit my [project file](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/configure-language-version#edit-the-project-file) to use `<LangVersion>preview</LangVersion>`.
 
 
 
