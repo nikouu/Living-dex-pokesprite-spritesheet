@@ -63,6 +63,19 @@ unzippedStream.Seek(0, SeekOrigin.Begin);
 using var reader = new TarReader(unzippedStream);
 ```
 
+However, this pattern can't be used everywhere. For instance when using the `Graphic` object to manipulate a `Bitmap` object, the `Graphic` needs to be disposed before the changes occur in the `Bitmap` (I think..). Meaning there is a piece of code here that uses both styles of `using`:
+
+```csharp
+using var imageStream = new MemoryStream(item.Image);
+using var pokemonImage = new Bitmap(imageStream);
+
+using (var graphics = Graphics.FromImage(spritesheet))
+{
+	graphics.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
+	graphics.DrawImage(pokemonImage, column * maxWidth, row * maxHeight);
+}   
+```
+
 ### Local functions
 Introduced in C# 7 (Framework and Core 2.x+) were [local functions](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/local-functions). I don't think the project has a good use case for it, but I wedged it into `Npm.cs` to get what the most recent version of the NPM package is. 
 
