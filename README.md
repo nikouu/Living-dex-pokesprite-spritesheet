@@ -63,7 +63,7 @@ unzippedStream.Seek(0, SeekOrigin.Begin);
 using var reader = new TarReader(unzippedStream);
 ```
 
-However, this pattern can't be used everywhere. For instance when using the `Graphic` object to manipulate a `Bitmap` object, the `Graphic` needs to be disposed before the changes occur in the `Bitmap` (I think..). Meaning there is a piece of code here that uses both styles of `using`:
+However, this pattern can't be used everywhere. For instance when using the `Graphics` object to manipulate a `Bitmap` object, the `Graphics` needs to be disposed before the changes occur in the `Bitmap` (I think..). Meaning there is a piece of code here that uses both styles of `using`:
 
 ```csharp
 using var imageStream = new MemoryStream(item.Image);
