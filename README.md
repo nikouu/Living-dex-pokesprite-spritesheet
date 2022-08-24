@@ -13,10 +13,10 @@ This work is be heavily influenced by the work from PokdexTracker.
 ## Pipeline
 
 1. Get latest sprites and associated metadata
-1. Move sprite from centre to top left
-1. Trim whitespace such that all whitespace is uniformly sized for each sprite
+1. Scale the Pokemon sprite if needed 
+1. Trim whitespace such that there is zero whitespace padding around the sprite
 1. Generate single spritesheet
-1. Generate `.scss` and subsequently `.css` files
+1. Generate `.css` files
 1. Copy to output location
 
 ## Trying out newer .NET features
