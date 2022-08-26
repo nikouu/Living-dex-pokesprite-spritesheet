@@ -37,6 +37,8 @@ namespace PokespriteGenerator
             using var spritesheet = new Bitmap(Columns * maxWidth, rows * maxHeight);
 
             // todo: work out a way nicer way of doing this
+            // maybe as an icomparable for each object, but then would need some sort of meta reflection to 
+            // pick apart the list and what subtypes are in it
             var pokemonList = spriteDataList.OfType<PokemonData>().OrderBy(x => int.Parse(x.Number)).Cast<BaseSpriteData>();
             var ballList = spriteDataList.OfType<BallData>().OrderBy(x => x.Name).Cast<BaseSpriteData>();
             var orderedSpriteDataList = pokemonList.Concat(ballList).ToList();
