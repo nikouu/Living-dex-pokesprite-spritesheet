@@ -36,9 +36,14 @@ namespace PokespriteGenerator
 
             using var spritesheet = new Bitmap(Columns * maxWidth, rows * maxHeight);
 
-            foreach (var item in spriteDataList.OrderByDescending(x => x.GetType().Name))
+            // todo: work out a way nicer way of doing this
+            var pokemonList = spriteDataList.OfType<PokemonData>().OrderBy(x => int.Parse(x.Number)).Cast<BaseSpriteData>();
+            var ballList = spriteDataList.OfType<BallData>().OrderBy(x => x.Name).Cast<BaseSpriteData>();
+            var orderedSpriteDataList = pokemonList.Concat(ballList).ToList();
+
+            foreach (var item in orderedSpriteDataList)
             {
-                var number = spriteDataList.IndexOf(item);
+                var number = orderedSpriteDataList.IndexOf(item);
                 var column = (number) % Columns;
                 var row = number / Columns;
 
@@ -56,7 +61,7 @@ namespace PokespriteGenerator
             spritesheet.Save(memoryStream, ImageFormat.Png);
 
             Console.WriteLine("Completed generating Pokemon spritesheet.");
-            return (spriteDataList, memoryStream.ToArray());
+            return (orderedSpriteDataList, memoryStream.ToArray());
         }
     }
 }

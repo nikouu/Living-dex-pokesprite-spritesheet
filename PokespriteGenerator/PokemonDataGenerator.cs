@@ -1,5 +1,6 @@
 ﻿using PokespriteGenerator.Models;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -13,12 +14,12 @@ namespace PokespriteGenerator
 {
     public class PokemonDataGenerator
     {
-        private readonly Dictionary<string, byte[]> _rawData;
+        private readonly ConcurrentDictionary<string, byte[]> _rawData;
         private readonly ChannelWriter<BaseSpriteData> _channelWriter;
 
         public PokemonDataGenerator(Dictionary<string, byte[]> rawData, ChannelWriter<BaseSpriteData> channelWriter)
         {
-            _rawData = rawData;
+            _rawData = new ConcurrentDictionary<string, byte[]>(rawData);
             _channelWriter = channelWriter;
         }
 
@@ -26,45 +27,10 @@ namespace PokespriteGenerator
         {
             try
             {
-                var pokemonJsonFile = _rawData.First(x => x.Key == "package/data/pokemon.json").Value;
+                var pokemonData = GeneratePokemonDataAsync();
+                var ballData = GenerateBallDataAsync();
 
-                var pokemonJson = Encoding.Default.GetString(pokemonJsonFile);
-
-                var pokemonMetadataModel = JsonSerializer.Deserialize<Dictionary<string, SinglePokemonMetadata>>(pokemonJson);
-
-
-                foreach (var (key, value) in pokemonMetadataModel)
-                {
-                    Console.WriteLine($"Processing {value.Name}");
-                    var normalFilename = $"package/pokemon-{value.LatestGeneration.Replace("-", "")}/regular/{value.Slug}.png";
-                    var normalVersion = new PokemonData(value.Name, value.Number, "", _rawData[normalFilename]);
-                    await _channelWriter.WriteAsync(normalVersion);
-
-                    foreach (var form in value.Forms)
-                    {
-                        Console.WriteLine($"Processing {value.Name}-{form}");
-                        var formFilename = $"package/pokemon-{value.LatestGeneration.Replace("-", "")}/regular/{value.Slug}-{form}.png";
-
-                        if (!_rawData.ContainsKey(formFilename))
-                        {
-                            Console.WriteLine($"Did not find file for {formFilename}");
-                            continue;
-                        }
-                        
-                        var formVersion = new PokemonData(value.Name, value.Number, form, _rawData[formFilename]);
-                        await _channelWriter.WriteAsync(formVersion);
-                    }
-                }
-
-                var ballImageFiles = _rawData.Where(x => x.Key.Contains("/items/ball"));
-
-                foreach (var item in ballImageFiles)
-                {
-                    Console.WriteLine($"Processing {item.Key}");
-                    var name = item.Key.Replace("package/items/ball/", "").Replace(".png", "");
-                    var ballData = new BallData(name, item.Value);
-                    await _channelWriter.WriteAsync(ballData);
-                }
+                await Task.WhenAll(pokemonData, ballData);
 
                 _channelWriter.Complete();
 
@@ -74,7 +40,49 @@ namespace PokespriteGenerator
             {
                 Console.WriteLine(e);
             }
+        }
 
+        private async Task GenerateBallDataAsync()
+        {
+            var ballImageFiles = _rawData.Where(x => x.Key.Contains("/items/ball"));
+
+            foreach (var item in ballImageFiles)
+            {
+                Console.WriteLine($"Processing {item.Key}");
+                var name = item.Key.Replace("package/items/ball/", "").Replace(".png", "");
+                var ballData = new BallData(name, item.Value);
+                await _channelWriter.WriteAsync(ballData);
+            }
+        }
+
+        private async Task GeneratePokemonDataAsync()
+        {
+            var pokemonJsonFile = _rawData.First(x => x.Key == "package/data/pokemon.json").Value;
+            var pokemonJson = Encoding.Default.GetString(pokemonJsonFile);
+            var pokemonMetadataModel = JsonSerializer.Deserialize<Dictionary<string, SinglePokemonMetadata>>(pokemonJson);
+
+            foreach (var (key, value) in pokemonMetadataModel)
+            {
+                Console.WriteLine($"Processing {value.Name}");
+                var normalFilename = $"package/pokemon-{value.LatestGeneration.Replace("-", "")}/regular/{value.Slug}.png";
+                var normalVersion = new PokemonData(value.Name, value.Number, "", _rawData[normalFilename]);
+                await _channelWriter.WriteAsync(normalVersion);
+
+                foreach (var form in value.Forms)
+                {
+                    Console.WriteLine($"Processing {value.Name}-{form}");
+                    var formFilename = $"package/pokemon-{value.LatestGeneration.Replace("-", "")}/regular/{value.Slug}-{form}.png";
+
+                    if (!_rawData.ContainsKey(formFilename))
+                    {
+                        Console.WriteLine($"Did not find file for {formFilename}");
+                        continue;
+                    }
+
+                    var formVersion = new PokemonData(value.Name, value.Number, form, _rawData[formFilename]);
+                    await _channelWriter.WriteAsync(formVersion);
+                }
+            }
         }
     }
 }

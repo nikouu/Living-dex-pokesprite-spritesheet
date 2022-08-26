@@ -43,9 +43,6 @@ var scaler = new Scaler(initialDataChannel.Reader, scaledDataChannel.Writer);
 var trimmer = new Trimmer(scaledDataChannel.Reader, trimmedDataChannel.Writer);
 var spritesheetGenerator = new SpritesheetGenerator(trimmedDataChannel.Reader);
 
-var ballGenerator = new BallDataGenerator(files, initialDataChannel.Writer);
-//await ballGenerator.Generate();
-
 var generatePokemonData = generator.Generate();
 var scaledPokemonData = scaler.Scale();
 var trimmedPokemonData = trimmer.Trim();
