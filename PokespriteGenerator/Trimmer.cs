@@ -13,10 +13,10 @@ namespace PokespriteGenerator
 {
     public class Trimmer
     {
-        private readonly ChannelReader<PokemonData> _channelReader;
-        private readonly ChannelWriter<PokemonData> _channelWriter;
+        private readonly ChannelReader<BaseSpriteData> _channelReader;
+        private readonly ChannelWriter<BaseSpriteData> _channelWriter;
 
-        public Trimmer(ChannelReader<PokemonData> channelReader, ChannelWriter<PokemonData> channelWriter)
+        public Trimmer(ChannelReader<BaseSpriteData> channelReader, ChannelWriter<BaseSpriteData> channelWriter)
         {
             _channelReader = channelReader;
             _channelWriter = channelWriter;
@@ -25,7 +25,7 @@ namespace PokespriteGenerator
         public async Task Trim()
         {
             // remove teh whitespace, and have it so its just the image without whitespace around it
-            await foreach (PokemonData item in _channelReader.ReadAllAsync())
+            await foreach (BaseSpriteData item in _channelReader.ReadAllAsync())
             {
                 using var imageStream = new MemoryStream(item.Image);
                 using var image = new Bitmap(imageStream);
@@ -42,8 +42,17 @@ namespace PokespriteGenerator
                 using var memoryStream = new MemoryStream();
                 trimmedImage.Save(memoryStream, ImageFormat.Png);
 
-                var newPokemonData = new PokemonData(item.Name, item.Number, item.Form, memoryStream.ToArray(), trimmedImage.Width, trimmedImage.Height);
-                await _channelWriter.WriteAsync(newPokemonData);
+                // prob have to be a mapper
+                if (item is PokemonData pokemonData)
+                {
+                    var newPokemonData = new PokemonData(pokemonData.Name, pokemonData.Number, pokemonData.Form, memoryStream.ToArray(), trimmedImage.Width, trimmedImage.Height);
+                    await _channelWriter.WriteAsync(newPokemonData);
+                }
+                else if (item is BallData ballData)
+                {
+                    var newBallData = new BallData(ballData.Name, memoryStream.ToArray(), trimmedImage.Width, trimmedImage.Height);
+                    await _channelWriter.WriteAsync(newBallData);
+                }
             }
 
             Console.WriteLine("Completed trimming Pokemon data.");
@@ -70,7 +79,7 @@ namespace PokespriteGenerator
 
         private int GetBottom(Bitmap image)
         {
-            for (int y = image.Height -1; y >= 0; y--)
+            for (int y = image.Height - 1; y >= 0; y--)
             {
                 for (int x = 0; x < image.Width; x++)
                 {
@@ -106,7 +115,7 @@ namespace PokespriteGenerator
 
         private int GetRight(Bitmap image)
         {
-            for (int x = image.Width -1; x >= 0; x--)
+            for (int x = image.Width - 1; x >= 0; x--)
             {
                 for (int y = 0; y < image.Height; y++)
                 {

@@ -81,6 +81,10 @@ using (var graphics = Graphics.FromImage(spritesheet))
 ### Local functions
 Introduced in C# 7 (Framework and Core 2.x+) were [local functions](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/local-functions). I don't think the project has a good use case for it, but I wedged it into `Npm.cs` to get what the most recent version of the NPM package is. 
 
+## Record inhertiance
+_These have since been removed and replaced with normal classes._
+I was originally using `record struct` types to represent data. But when I moved to also bringing in balls, I wanted them to be treated the same in the pipline, meaning I could then inherit from a common object. [Only `record class` types can have inheritance](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/record#inheritance). 
+
 ### Raw string literals
 At the time of writing this, [Raw String Literals](https://devblogs.microsoft.com/dotnet/csharp-11-preview-updates/) is a C# 11 preview feature. They're strings that let you put all sorts of characters in it like quotes or backslashes without escaping them - because you cannot escape anything inside a raw string literal. 
 

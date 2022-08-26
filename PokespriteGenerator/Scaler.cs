@@ -15,11 +15,11 @@ namespace PokespriteGenerator
         private const int Threshold = 100;
         private const float ScaleTo = 0.5f;
 
-        private readonly ChannelReader<PokemonData> _channelReader;
-        private readonly ChannelWriter<PokemonData> _channelWriter;
+        private readonly ChannelReader<BaseSpriteData> _channelReader;
+        private readonly ChannelWriter<BaseSpriteData> _channelWriter;
 
 
-        public Scaler(ChannelReader<PokemonData> channelReader, ChannelWriter<PokemonData> channelWriter)
+        public Scaler(ChannelReader<BaseSpriteData> channelReader, ChannelWriter<BaseSpriteData> channelWriter)
         {
             _channelReader = channelReader;
             _channelWriter = channelWriter;
@@ -28,7 +28,7 @@ namespace PokespriteGenerator
         // is this even needed for my case..?
         public async Task Scale()
         {
-            await foreach (PokemonData item in _channelReader.ReadAllAsync())
+            await foreach (BaseSpriteData item in _channelReader.ReadAllAsync())
             {
                 using var imageStream = new MemoryStream(item.Image);
                 using var image = new Bitmap(imageStream);
@@ -36,19 +36,19 @@ namespace PokespriteGenerator
                 if (image.Width > Threshold || image.Height > Threshold)
                 {
                     // scale image
-                    var scaledX = (int)Math.Round(image.Width * ScaleTo);
-                    var scaledY = (int)Math.Round(image.Height * ScaleTo);
+                    //var scaledX = (int)Math.Round(image.Width * ScaleTo);
+                    //var scaledY = (int)Math.Round(image.Height * ScaleTo);
 
-                    using var resizedImage = new Bitmap(scaledX, scaledY, PixelFormat.Format64bppArgb);
-                    resizedImage.SetResolution(image.Width, image.Height);
-                    using var graphics = Graphics.FromImage(resizedImage);
-                    graphics.DrawImage(image, new Rectangle(0, 0, scaledX, scaledY), new Rectangle(0, 0, image.Width, image.Height), GraphicsUnit.Pixel);
+                    //using var resizedImage = new Bitmap(scaledX, scaledY, PixelFormat.Format64bppArgb);
+                    //resizedImage.SetResolution(image.Width, image.Height);
+                    //using var graphics = Graphics.FromImage(resizedImage);
+                    //graphics.DrawImage(image, new Rectangle(0, 0, scaledX, scaledY), new Rectangle(0, 0, image.Width, image.Height), GraphicsUnit.Pixel);
 
-                    using var memoryStream = new MemoryStream();
-                    resizedImage.Save(memoryStream, ImageFormat.Png);
-                    var newPokemonData = new PokemonData(item.Name, item.Number, item.Form, memoryStream.ToArray());
+                    //using var memoryStream = new MemoryStream();
+                    //resizedImage.Save(memoryStream, ImageFormat.Png);
+                    //var newPokemonData = new PokemonData(item.Name, item.Number, item.Form, memoryStream.ToArray());
 
-                    await _channelWriter.WriteAsync(newPokemonData);
+                    //await _channelWriter.WriteAsync(newPokemonData);
                 }
                 else
                 {

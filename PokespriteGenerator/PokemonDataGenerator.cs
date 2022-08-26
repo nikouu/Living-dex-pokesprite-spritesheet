@@ -14,9 +14,9 @@ namespace PokespriteGenerator
     public class PokemonDataGenerator
     {
         private readonly Dictionary<string, byte[]> _rawData;
-        private readonly ChannelWriter<PokemonData> _channelWriter;
+        private readonly ChannelWriter<BaseSpriteData> _channelWriter;
 
-        public PokemonDataGenerator(Dictionary<string, byte[]> rawData, ChannelWriter<PokemonData> channelWriter)
+        public PokemonDataGenerator(Dictionary<string, byte[]> rawData, ChannelWriter<BaseSpriteData> channelWriter)
         {
             _rawData = rawData;
             _channelWriter = channelWriter;
@@ -54,6 +54,16 @@ namespace PokespriteGenerator
                         var formVersion = new PokemonData(value.Name, value.Number, form, _rawData[formFilename]);
                         await _channelWriter.WriteAsync(formVersion);
                     }
+                }
+
+                var ballImageFiles = _rawData.Where(x => x.Key.Contains("/items/ball"));
+
+                foreach (var item in ballImageFiles)
+                {
+                    Console.WriteLine($"Processing {item.Key}");
+                    var name = item.Key.Replace("package/items/ball/", "").Replace(".png", "");
+                    var ballData = new BallData(name, item.Value);
+                    await _channelWriter.WriteAsync(ballData);
                 }
 
                 _channelWriter.Complete();

@@ -14,31 +14,31 @@ namespace PokespriteGenerator
     {
         private const int Columns = 32;
 
-        private readonly ChannelReader<PokemonData> _channelReader;
+        private readonly ChannelReader<BaseSpriteData> _channelReader;
 
-        public SpritesheetGenerator(ChannelReader<PokemonData> channelReader)
+        public SpritesheetGenerator(ChannelReader<BaseSpriteData> channelReader)
         {
             _channelReader = channelReader;
         }
 
-        public async Task<(List<PokemonData>, byte[])> GenerateSpritesheet()
+        public async Task<(List<BaseSpriteData>, byte[])> GenerateSpritesheet()
         {
-            var pokemonDataList = new List<PokemonData>();
-            await foreach (PokemonData item in _channelReader.ReadAllAsync())
+            var spriteDataList = new List<BaseSpriteData>();
+            await foreach (BaseSpriteData item in _channelReader.ReadAllAsync())
             {
-                pokemonDataList.Add(item);
+                spriteDataList.Add(item);
             }
 
-            var maxWidth = pokemonDataList.Max(x => x.TrimmedWidth).GetValueOrDefault();
-            var maxHeight = pokemonDataList.Max(x => x.TrimmedHeight).GetValueOrDefault();
+            var maxWidth = spriteDataList.Max(x => x.TrimmedWidth).GetValueOrDefault();
+            var maxHeight = spriteDataList.Max(x => x.TrimmedHeight).GetValueOrDefault();
 
-            var rows = (int)Math.Ceiling((double)(pokemonDataList.Count / Columns)) + 1;
+            var rows = (int)Math.Ceiling((double)(spriteDataList.Count / Columns)) + 1;
 
             using var spritesheet = new Bitmap(Columns * maxWidth, rows * maxHeight);
 
-            foreach (var item in pokemonDataList)
+            foreach (var item in spriteDataList.OrderByDescending(x => x.GetType().Name))
             {
-                var number = pokemonDataList.IndexOf(item);
+                var number = spriteDataList.IndexOf(item);
                 var column = (number) % Columns;
                 var row = number / Columns;
 
@@ -56,7 +56,7 @@ namespace PokespriteGenerator
             spritesheet.Save(memoryStream, ImageFormat.Png);
 
             Console.WriteLine("Completed generating Pokemon spritesheet.");
-            return (pokemonDataList, memoryStream.ToArray());
+            return (spriteDataList, memoryStream.ToArray());
         }
     }
 }
