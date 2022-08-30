@@ -10,7 +10,7 @@ namespace PokespriteGenerator
 {
     public class Decompressor
     {
-        public async Task<Dictionary<string, byte[]>> DecompressTgzAsync(MemoryStream tgzStream)
+        public async ValueTask<Dictionary<string, byte[]>> DecompressTgzAsync(MemoryStream tgzStream)
         {
             using var gzip = new GZipStream(tgzStream, CompressionMode.Decompress);
 

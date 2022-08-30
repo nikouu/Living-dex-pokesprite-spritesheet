@@ -6,7 +6,7 @@ namespace PokespriteGenerator
     public class Npm
     {
         // pass streams or byte[] back/around?
-        public async Task<MemoryStream> GetTarball(string packageName, string? packageVersion = null)
+        public async ValueTask<MemoryStream> GetTarball(string packageName, string? packageVersion = null)
         {
             var version = packageVersion ?? await GetLatestVersionAsync();
 
@@ -25,14 +25,14 @@ namespace PokespriteGenerator
             return memoryStream;
 
             // messing with local functions
-            async Task<string> GetLatestVersionAsync()
+            async ValueTask<string> GetLatestVersionAsync()
             {
                 var latestVersion = await GetPackageMetadataAsync<NpmPackageQueryModel>(packageName, null);
                 return latestVersion.DistTags.Latest;
             }
         }
 
-        private async Task<T> GetPackageMetadataAsync<T>(string packageName, string packageVersion)
+        private async ValueTask<T> GetPackageMetadataAsync<T>(string packageName, string packageVersion)
         {
             var url = BuildNpmPackageUrl(packageName, packageVersion);
             var json = await GetNpmJsonAsync(url);
@@ -41,7 +41,7 @@ namespace PokespriteGenerator
             return packageMetadata;
         }
 
-        private async Task<string> GetNpmJsonAsync(Uri url)
+        private async ValueTask<string> GetNpmJsonAsync(Uri url)
         {
             var client = new HttpClient();
             var json = await client.GetStringAsync(url);
