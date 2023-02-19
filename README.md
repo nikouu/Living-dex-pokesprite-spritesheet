@@ -83,7 +83,7 @@ Introduced in C# 7 (Framework and Core 2.x+) were [local functions](https://docs
 
 ## Record inhertiance
 _These have since been removed and replaced with normal classes._
-I was originally using `record struct` types to represent data. But when I moved to also bringing in balls, I wanted them to be treated the same in the pipline, meaning I could then inherit from a common object. [Only `record class` types can have inheritance](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/record#inheritance). 
+I was originally using `record struct` types to represent data. But when I moved to also bringing in balls, I wanted them to be treated the same in the pipeline, meaning I could then inherit from a common object. [Only `record class` types can have inheritance](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/record#inheritance). 
 
 ## `ValueTask`
 
